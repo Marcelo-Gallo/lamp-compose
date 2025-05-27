@@ -74,7 +74,7 @@ services:
     ports:
       - "8080:80"
     links:
-      -mysql
+      - mysql
     enviroment:
       PMA_ARBITRARY: 0
       PMA_HOST: mysql
