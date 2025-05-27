@@ -1,23 +1,21 @@
-# a porcaria da minha ficha caiu agora. Quando você usa o docker em uma instancia, é o mesmo uso da máquina pessoal.
-# o ./web da minha máquina vai ser o mesmo da instancia, pq o docker roda os containeres dentro da instancia
-# porta 80 precisa estar liberada na instancia para acessar pelo navegador
+
 services:
   php:
     build:
-      context: ./php #indica onde está o arquivo Dockerfile
+      context: ./php # Indica onde está o arquivo Dockerfile
       dockerfile: Dockerfile
 
-    container_name: gallo-ifsp-php #apelido para o container
+    container_name: gallo-ifsp-php # Apelido para o container
     restart: always
     volumes:
-      - ./web:/var/www/html/ #Irá copiar o conteúdo da pasta src para o container
+      - ./web:/var/www/html/ # Irá copiar o conteúdo da pasta src para o container
     networks:
       - lamp-network
     ports:
-      #mapear as portas para ficarem visiveis na máquina host
+      # Mapear as portas para ficarem visiveis na máquina host
       - "80:80"
     links:
-      #criar conexão com o container do banco de dados
+      # Criar conexão com o container do banco de dados
       - mysql
       - postgres
 
@@ -29,11 +27,11 @@ services:
       POSTGRES_PASSWORD: postdba
       POSTGRES_USER: postgres
     ports:
-     - "5432:5432"
+      - "5432:5432"
     volumes:
-    - ./postgres:/var/lib/postgresql/data
+      - ./postgres:/var/lib/postgresql/data
     networks:
-    - lamp-network
+     - lamp-network
 
   pgadmin:
     image: dpage/pgadmin4
@@ -47,21 +45,21 @@ services:
       - postgres
     networks:
       - lamp-network
-      
+
   mysql:
-    image: mysql:5.7
+    image: mysql:5.7 # A versão 8.0 está com instabilidades
     container_name: gallo-ifsp-mysql
-    restart: always
+    restart: always # Por padrão o Docker não reinicia o container, vamos mudar isso.
     volumes:
-      - ./mysql:var/lib/mysql
+      - ./mysql:/var/lib/mysql
     ports:
-      - "3306:3306"
+      - "3306:3306" # Mapeei a porta para funcionar no Dbeaver, mas não precisaria.
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: teste
+      MYSQL_ROOT_PASSWORD: root # Definir senha do usuário root
+      MYSQL_DATABASE: teste # Iniciar o container com um banco criado
     networks:
       - lamp-network
-      
+
   phpmyadmin:
     build:
       context: ./phpmyadmin
@@ -76,7 +74,7 @@ services:
     links:
       - mysql
     environment:
-      PMA_ARBITRARY: 0
+      PMA_ARBITRARY: 0 # 1 para Habilitar a opção para inserir host no login
       PMA_HOST: mysql
     networks:
       - lamp-network
@@ -90,3 +88,12 @@ volumes:
   mysql:
   web:
     driver: local
+
+#-----------------------------------------------------------------------------------------------------------------------------------------------#
+# Caso dê problema para seu PHP conectar ao banco, use a versão 5.7 do MySQL ou faça o tutorial abaixo:
+# docker container exec -it mrb-mysql bash
+# mysql -u root -p
+# ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';
+# ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'root';
+# ALTER USER 'default'@'%' IDENTIFIED WITH mysql_native_password BY 'secret';
+#-----------------------------------------------------------------------------------------------------------------------------------------------#
