@@ -83,7 +83,7 @@ services:
 
 networks:
   lamp-network:
-  driver: bridge
+    driver: bridge
 
 volumes:
   postgres:
