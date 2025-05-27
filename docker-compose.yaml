@@ -1,0 +1,92 @@
+# a porcaria da minha ficha caiu agora. Quando você usa o docker em uma instancia, é o mesmo uso da máquina pessoal.
+# o ./web da minha máquina vai ser o mesmo da instancia, pq o docker roda os containeres dentro da instancia
+# porta 80 precisa estar liberada na instancia para acessar pelo navegador
+services:
+  php:
+    build:
+    context: ./php #indica onde está o arquivo Dockerfile
+    dockerfile: Dockerfile
+
+    container_name: gallo-ifsp-php #apelido para o container
+    restart: always
+    volumes:
+      - ./web:/var/www/html/ #Irá copiar o conteúdo da pasta src para o container
+    networks:
+      - lamp-network
+    ports:
+      #mapear as portas para ficarem visiveis na máquina host
+      - "80:80"
+    links:
+      #criar conexão com o container do banco de dados
+      - mysql
+      - postgres
+
+  postgres:
+    image: postgres:12
+    container_name: gallo-ifsp-pgsql
+    restart: always
+    enviroment:
+      POSTGRES_PASSWORD: postdba
+      POSTGRES_USER: postgres
+    ports:
+     - "5432:5432"
+    volumes:
+    - ./postgres:/var/lib/postgresql/data
+    networks:
+    - lamp-network
+
+    pgadmin:
+      image: dpage/pgadmin4
+      container_name: gallo-ifsp-pgadmin
+      enviroment:
+        PGADMIN_DEFAULT_EMAIL: postgres@servidor.com
+        PGADMIN_DEFAULT_PASSWORD: postdba
+      ports:
+        - 8081:80
+      depends_on:
+        - postgres
+      networks:
+        - lamp-network
+      
+      mysql:
+        image: mysql:5.7
+        container_name: gallo-ifsp-mysql
+        restart: always
+        volumes:
+          - ./mysql:var/lib/mysql
+        ports:
+          - "3306:3306"
+        enviroment:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: teste
+        networks:
+          -lamp-network
+      
+  phpmyadmin:
+    build:
+      context: ./phpmyadmin
+      dockerfile: Dockerfile
+
+    container_name: galo-ifsp-phpmyadmin
+    restart: always
+    volumes:
+      - /sessions
+    ports:
+      - "8080:80"
+    links:
+      -mysql
+    enviroment:
+      PMA_ARBITRARY: 0
+      PMA_HOST: mysql
+    networks:
+      - lamp-network
+
+  networks:
+    lamp-network:
+    driver: bridge
+
+  volumes:
+    postgres:
+    mysql:
+    web:
+      driver: local
