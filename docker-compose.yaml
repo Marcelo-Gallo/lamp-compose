@@ -4,8 +4,8 @@
 services:
   php:
     build:
-    context: ./php #indica onde está o arquivo Dockerfile
-    dockerfile: Dockerfile
+      context: ./php #indica onde está o arquivo Dockerfile
+      dockerfile: Dockerfile
 
     container_name: gallo-ifsp-php #apelido para o container
     restart: always
