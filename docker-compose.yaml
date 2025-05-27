@@ -60,7 +60,7 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: teste
     networks:
-      -lamp-network
+      - lamp-network
       
   phpmyadmin:
     build:
