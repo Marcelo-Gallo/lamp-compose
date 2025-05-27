@@ -31,7 +31,7 @@ services:
     ports:
      - "5432:5432"
     volumes:
-    - ./postgres:./var/lib/postgresql/data
+    - ./postgres:/var/lib/postgresql/data
     networks:
     - lamp-network
 
@@ -67,7 +67,7 @@ services:
       context: ./phpmyadmin
       dockerfile: Dockerfile
 
-    container_name: galo-ifsp-phpmyadmin
+    container_name: gallo-ifsp-phpmyadmin
     restart: always
     volumes:
       - /sessions
